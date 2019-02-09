@@ -1,0 +1,22 @@
+version: '2'
+volumes:
+    postgres-data:
+services:
+  gogs:
+    build: ./gogs
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+  postgres:
+    build: ./postgres
+    volumes:
+      - 'postgres-data:/var/lib/postgresql'
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_PASSWORD: gogs
+      POSTGRES_USER: gogs
+      POSTGRES_DB: gogs

@@ -1,0 +1,16 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-golang:latest-build AS build
+RUN go get github.com/gogs/gogs
+WORKDIR /go/src/github.com/gogs/gogs
+RUN go get && go build && make
+RUN apt-get update && apt-get install -y zip
+RUN make pack
+
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:stretch
+
+COPY --from=build /go/src/github.com/gogs/gogs/release/*.zip .
+RUN apt-get update && apt-get install -y unzip git
+RUN unzip *.zip
+WORKDIR /gogs
+RUN mkdir -p /gogs/custom/conf
+ADD ./app.ini /gogs/custom/conf/
+CMD ./gogs web
